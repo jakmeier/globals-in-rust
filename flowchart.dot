@@ -1,0 +1,51 @@
+digraph G {
+  node [fontname = "Handlee" shape=underline];
+  edge [fontname = "Handlee"];
+
+//  label = "Rule of Thumb for Global Variables in Rust";
+//  labelloc = "t"; // place the label at the top
+  
+  necessary        [ label = "So, you want to use global variables in Rust.\nCould you store data on the heap or stack?" ];
+  normalContainer  [ label = "Don't use global variables.\nRefactor to use reference-counted smart pointers instead.\n" ];
+  compileTime      [ label = "Value known at compile-time?"];
+  innerMutability  [ label = "Interior Mutability?" ];
+  multiThreaded    [ label = "Shared among multiple threads?" ];
+  inline           [ label = "Inlining wanted?" ];
+  externalLib      [ label = "Extra dependency okay?"];
+  
+  arc              [ shape=box label = "Arc<T>" ];
+  rc               [ shape=box label = "Rc<T>" ];
+  const            [ shape=box label = "const T" ];
+  static           [ shape=box label = "static T" ];
+  libs             [ shape=box label = "lazy_static or once_cell"];
+  once             [ shape=box label = "std::sync::Once + static mut T" ];
+  threadLocal      [ shape=box label = "std::thread_local"];
+//  arcMutable       [ label = "Arc<Mutex<T>> or Arc<RwLock<T>>" ];
+//  staticMut        [ label = "static mut T" ];
+// rcMutableCopy    [ label = "Rc<Cell<T>" ];
+//  rcMutableClone   [ label = "Rc<RefCell<T>>" ];
+
+  {rank=same; arc, rc, const, static, libs, once, threadLocal }
+//  splines="line";
+
+  necessary -> normalContainer   [label = "Yes"];
+  necessary -> compileTime       [label = "No, I need static memory"];
+
+  normalContainer -> arc         [label = "Multi-threaded"];
+  normalContainer -> rc          [label = "Single-threaded"];
+
+  compileTime -> innerMutability [label = "Yes"];
+  compileTime -> multiThreaded   [label = "No"];
+
+  innerMutability -> static      [label = "Yes"];
+  innerMutability -> inline      [label = "No"];
+
+  inline -> const                [label = "Yes"];
+  inline -> static               [label = "No"];
+
+  multiThreaded -> threadLocal   [label = "No"];
+  multiThreaded -> externalLib   [label = "Yes"];
+
+  externalLib   -> once          [label = "No"];
+  externalLib   -> libs          [label = "Yes"];
+}
