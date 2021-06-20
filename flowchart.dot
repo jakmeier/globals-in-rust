@@ -29,7 +29,7 @@ digraph G {
 //  splines="line";
 
   necessary -> normalContainer   [label = "Yes"];
-  necessary -> compileTime       [label = "No, I need static memory"];
+  necessary -> compileTime       [label = "No, I want static memory"];
 
   normalContainer -> arc         [label = "Multi-threaded"];
   normalContainer -> rc          [label = "Single-threaded"];
